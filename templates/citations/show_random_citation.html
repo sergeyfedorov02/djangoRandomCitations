@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block title %}Случайная Цитата{% endblock %}
+
+{% block content %}
+    {% if message %}
+        <h2>{{ message }}</h2>
+        <a href="{% url 'add_citation' %}">Добавить цитату</a>
+    {% else %}
+        <p>{{ citation.text }}</p>
+        <strong>-</strong>
+        <p>{{ citation.source }}</p>
+        <div>
+            <span>Лайков: {{ citation.likes }}</span>
+            <span>Дизлайков: {{ citation.dislikes }}</span>
+            <span>Просмотров: {{ citation.views }}</span>
+        </div>
+        <div>
+            <a href="{% url 'add_citation' %}">Добавить цитату</a>
+            <a href="{% url 'show_top_citations' %}">Посмотреть топ-10 цитат</a>
+        </div>
+    {% endif %}
+{% endblock %}

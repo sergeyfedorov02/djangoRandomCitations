@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block title %}Топ-10 Цитат{% endblock %}
+
+{% block content %}
+    <h2>Топ-10 Цитат</h2>
+    <ul>
+        {% for citation in citations %}
+            <li>
+                "{{ citation.text }}" - {{ citation.source }} (Лайков: {{ citation.likes }})
+            </li>
+        {% endfor %}
+    </ul>
+{% endblock %}

@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block title %}Добавить Цитату{% endblock %}
+
+{% block content %}
+    <h2>Добавить новую цитату</h2>
+    <form method="post">
+        {% csrf_token %}
+        <div class="form-field">
+            <label for="{{ form.text.id_for_label }}">Текст цитаты:</label>
+            {{ form.text }}
+        </div>
+        <div class="form-field">
+            <label for="{{ form.source.id_for_label }}">Источник:</label>
+            {{ form.source }}
+        </div>
+        <button type="submit">Добавить</button>
+    </form>
+    {% if form.errors %}
+        <div class="error">
+            <p>Ошибки при добавлении:</p>
+            <ul>
+                {% for field in form %}
+                    {% for error in field.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+{% endblock %}
+

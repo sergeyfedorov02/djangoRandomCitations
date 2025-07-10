@@ -5,7 +5,7 @@ from django.db import models
 # Create your models here.
 class Citation(models.Model):
     # unique - уникальность, validators - защита от спама (ограничение количества символов)
-    text = models.TextField(unique=True, validators=[MaxLengthValidator(2000)])
+    text = models.TextField(unique=True, validators=[MaxLengthValidator(2000)],  db_index=True)
     source = models.CharField(max_length=255)  # ограничение размера источника для эффективного использования памяти БД
     weight = models.PositiveIntegerField(default=1)  # исключаем дроби и отрицательные значения (+быстродействие БД)
     likes = models.PositiveIntegerField(default=0, db_index=True)  # db_index - ускорение производительности запросов
