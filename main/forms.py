@@ -11,7 +11,7 @@ class CitationForm(forms.ModelForm):
     def clean_text(self):
         text = self.cleaned_data.get('text')
 
-        # Кастомизация сообщения, если более 200 символов
+        # Кастомизация сообщения, если более 2000 символов
         if len(text) > 2000:
             raise ValidationError("Цитата слишком длинная (максимум 2000 символов)!")
 
