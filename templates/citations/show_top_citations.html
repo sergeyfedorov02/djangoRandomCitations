@@ -3,12 +3,141 @@
 {% block title %}Топ-10 Цитат{% endblock %}
 
 {% block content %}
-    <h2>Топ-10 Цитат</h2>
-    <ul>
-        {% for citation in citations %}
-            <li>
-                "{{ citation.text }}" - {{ citation.source }} (Лайков: {{ citation.likes }})
-            </li>
-        {% endfor %}
-    </ul>
+    <div class="container-fluid py-4">
+        <div class="row justify-content-center">
+            <div class="col-12 col-lg-10 col-xl-8">
+                <div class="top-header text-center mb-5">
+                    <h1 class="display-5 fw-bold">
+                        <i class="bi bi-trophy-fill me-2"></i>Топ-10 цитат
+                    </h1>
+                </div>
+
+                <div class="citation-list">
+                    {% for citation in citations %}
+                        <div class="citation-card mb-4">
+                            <div class="citation-content">
+                                <div class="citation-text">"{{ citation.text }}"</div>
+                                <div class="citation-source">— {{ citation.source }}</div>
+                                <div class="citation-stats mt-3">
+                            <span class="badge bg-light text-dark me-2">
+                                <i class="bi bi-hand-thumbs-up-fill text-success me-1"></i>
+                                {{ citation.likes }}
+                            </span>
+                                    <span class="badge bg-light text-dark">
+                                <i class="bi bi-eye-fill text-secondary me-1"></i>
+                                {{ citation.views }}
+                            </span>
+                                </div>
+                            </div>
+                            <div class="citation-rank">
+                                <div class="rank-badge {% if forloop.first %}gold{% elif forloop.counter == 2 %}silver{% elif forloop.counter == 3 %}bronze{% else %}default{% endif %}">
+                                    #{{ forloop.counter }}
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .top-header {
+            color: white;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
+        }
+
+        .citation-list {
+            max-height: 70vh;
+            overflow-y: auto;
+            padding-right: 8px;
+        }
+
+        .citation-card {
+            display: flex;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .citation-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+        }
+
+        .citation-content {
+            flex: 1;
+            padding: 25px;
+        }
+
+        .citation-text {
+            font-size: 1.25rem;
+            line-height: 1.6;
+            font-style: italic;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .citation-source {
+            font-size: 1.1rem;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .citation-stats {
+            display: flex;
+            gap: 12px;
+        }
+
+        .citation-rank {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 80px;
+            background: #f8f9fa;
+        }
+
+        .rank-badge {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+        }
+
+        .gold {
+            background: linear-gradient(135deg, #ffd700, #ffaa00);
+        }
+
+        .silver {
+            background: linear-gradient(135deg, #c0c0c0, #999999);
+        }
+
+        .bronze {
+            background: linear-gradient(135deg, #cd7f32, #a0522d);
+        }
+
+        .default {
+            background: linear-gradient(135deg, #6c757d, #495057);
+        }
+
+        /* Стили для скроллбара */
+        .citation-list::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .citation-list::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .citation-list::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 4px;
+        }
+    </style>
 {% endblock %}
