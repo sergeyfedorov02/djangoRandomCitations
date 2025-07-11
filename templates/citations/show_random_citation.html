@@ -63,7 +63,7 @@
                         const likeBtn = document.querySelector('button[onclick*="like"]');
                         const dislikeBtn = document.querySelector('button[onclick*="dislike"]');
 
-                        // Сбрасываем стили обеих кнопок
+                        // Сбрасываем стили и устанавливаем стандартные
                         likeBtn.classList.remove('btn-success', 'btn-outline-success');
                         dislikeBtn.classList.remove('btn-danger', 'btn-outline-danger');
                         likeBtn.classList.add('btn-outline-success');
@@ -77,15 +77,15 @@
 
                         // Применяем стили в зависимости от действия пользователя
                         if (data.user_action === 'like') {
-                            likeBtn.classList.remove('btn-outline-success');
                             likeBtn.classList.add('btn-success');
-                            likeBtn.querySelector('i').classList.remove('bi-hand-thumbs-up');
+                            likeBtn.classList.remove('btn-outline-success');
                             likeBtn.querySelector('i').classList.add('bi-hand-thumbs-up-fill');
+                            likeBtn.querySelector('i').classList.remove('bi-hand-thumbs-up');
                         } else if (data.user_action === 'dislike') {
-                            dislikeBtn.classList.remove('btn-outline-danger');
                             dislikeBtn.classList.add('btn-danger');
-                            dislikeBtn.querySelector('i').classList.remove('bi-hand-thumbs-down');
+                            dislikeBtn.classList.remove('btn-outline-danger');
                             dislikeBtn.querySelector('i').classList.add('bi-hand-thumbs-down-fill');
+                            dislikeBtn.querySelector('i').classList.remove('bi-hand-thumbs-down');
                         }
                     })
                     .catch(error => console.error('Error:', error));

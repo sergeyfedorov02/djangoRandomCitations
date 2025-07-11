@@ -5,6 +5,9 @@ import random
 
 from django.http import JsonResponse
 
+from django.db import transaction
+from django.db.models import F
+
 
 # Create your views here.
 def show_random_citation(request):
@@ -16,8 +19,8 @@ def show_random_citation(request):
 
     # Если есть -> выберем и отобразим случайную на основе веса (и увеличим счетчик показа)
     citation = random.choices(citations, weights=[c.weight for c in citations])[0]
-    citation.views += 1
-    citation.save()
+    citation.process_view()
+    citation.refresh_from_db()
 
     context = {
         'citation': citation,
@@ -49,42 +52,51 @@ def show_top_citations(request):
 
 
 def vote(request, citation_id):
-    citation = get_object_or_404(Citation, id=citation_id)
-    action = request.GET.get('action')
+    with transaction.atomic():
+        # select_for_update блокирует запись для конкурентных запросов
+        citation = Citation.objects.select_for_update().get(pk=citation_id)
+        action = request.GET.get('action')
+        like_key = f'liked_{citation_id}'
+        dislike_key = f'disliked_{citation_id}'
 
-    # Для хранения результатов голосования -> используем ключи
-    like_key = f'liked_{citation_id}'
-    dislike_key = f'disliked_{citation_id}'
+        was_liked = like_key in request.session
+        was_disliked = dislike_key in request.session
 
-    if action == 'like':
-        # Отмена лайка
-        if request.session.get(like_key):
-            citation.likes -= 1
-            del request.session[like_key]
-        else:
-            # Новый лайк
-            citation.likes += 1
-            request.session[like_key] = True
-            # Отмена дизлайка
-            if request.session.get(dislike_key):
-                citation.dislikes -= 1
-                del request.session[dislike_key]
-
-    elif action == 'dislike':
-        if request.session.get(dislike_key):
-            citation.dislikes -= 1
-            del request.session[dislike_key]
-        else:
-            citation.dislikes += 1
-            request.session[dislike_key] = True
-            if request.session.get(like_key):
-                citation.likes -= 1
+        # Если ставим лайк ->
+        if action == 'like':
+            # Если уже был -> отменяем
+            if was_liked:
+                Citation.objects.filter(pk=citation_id).update(likes=F('likes') - 1)
                 del request.session[like_key]
+            else:
+                # Если НЕ был -> ставим + отменяем дизлайк (если был)
+                updates = {'likes': F('likes') + 1}
+                if was_disliked:
+                    updates['dislikes'] = F('dislikes') - 1
+                    del request.session[dislike_key]
+                Citation.objects.filter(pk=citation_id).update(**updates)
+                request.session[like_key] = True
 
-    citation.save()
-    return JsonResponse({'likes': citation.likes,
-                         'dislikes': citation.dislikes,
-                         'user_action':
-                             'like' if request.session.get(like_key)
-                             else 'dislike' if request.session.get(dislike_key)
-                             else None})
+        # Если ставим дизлайк ->
+        elif action == 'dislike':
+            # Если уже был -> отменяем
+            if was_disliked:
+                Citation.objects.filter(pk=citation_id).update(dislikes=F('dislikes') - 1)
+                del request.session[dislike_key]
+            else:
+                # Если НЕ был -> ставим + отменяем лайк (если был)
+                updates = {'dislikes': F('dislikes') + 1}
+                if was_liked:
+                    updates['likes'] = F('likes') - 1
+                    del request.session[like_key]
+                Citation.objects.filter(pk=citation_id).update(**updates)
+                request.session[dislike_key] = True
+
+        request.session.modified = True
+        citation.refresh_from_db()
+
+        return JsonResponse({
+            'likes': citation.likes,
+            'dislikes': citation.dislikes,
+            'user_action': action if not (was_liked if action == 'like' else was_disliked) else None
+        })
